@@ -1,6 +1,24 @@
 import os
 from PIL import Image
 import cv2
+import pathlib
+from passwords import *
+
+import cloudinary
+import cloudinary.uploader
+
+
+cloudinary.config( 
+    cloud_name = CLOUDINARY_CLOUD_NAME, 
+    api_key = CLOUDINARY_API_KEY, 
+    api_secret = CLOUDINARY_API_SECRET, # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
+
+def get_video_url(video):
+    response = cloudinary.uploader.upload(video,resource_type="video")
+    url = response["secure_url"]
+    return url
 
 current_path = os.getcwd()
 img_dir = "images"
@@ -52,5 +70,3 @@ def create_video(folder,name):
             vid_writer.write(loaded_img)
 
     vid_writer.release()
-
-create_video(img_dir,"story2")
