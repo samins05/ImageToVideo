@@ -23,6 +23,7 @@ def createVideo(image_urls):
     video = create_video("images",name)
     url = get_video_url(video)
     clear("images")  
+    remove_video(video)
     return url 
 
 if __name__=='__main__':

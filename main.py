@@ -109,4 +109,6 @@ def list_to_images(image_urls):
         name = "img"+str(id)+".jpeg"
         url_to_img(url,name,"images/")
         id+=1
-    
+
+def remove_video(video):
+    os.remove(video)
