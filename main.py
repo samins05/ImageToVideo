@@ -2,6 +2,8 @@ import os
 from PIL import Image
 import cv2
 import pathlib
+import urllib.request 
+from pathlib import Path
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -21,6 +23,16 @@ cloudinary.config(
 )
 
 
+
+def clear(folder):
+    if len(os.listdir(folder))==0:
+        print('Clear Error', 'Error: The dataset is already empty. You cannot clear it.')
+    else:
+        #delete each path in the data directory/folder
+        for path in Path(folder).glob("*"):
+            path.unlink()
+
+#@param: gives exact name of video file 
 def get_video_url(video):
     response = cloudinary.uploader.upload(video,
         resource_type = "video", format="mp4")
@@ -39,7 +51,7 @@ def get_average_dimension(folder):
             width += w
             height +=h 
             count+=1
-
+    
     width = int(width/count)
     height = int(height/count)
     return width,height
@@ -52,9 +64,13 @@ def resize_images(folder, width, height):
             
             #resize image and save it with new dimensions
             resized_img = img.resize((width, height), Image.LANCZOS)
-            resized_img.save(image_path, 'JPEG', quality=95)
+            resized_img.save(image_path, 'PNG', quality=95)
 
+
+# don't include .mp4 in the name 
 def create_video(folder,name):
+    if len(folder)==0:
+        return ""
     avg_w, avg_h = get_average_dimension(folder)
     resize_images(folder,1000,900)
     video_filename = name+".mp4"
@@ -76,3 +92,21 @@ def create_video(folder,name):
             vid_writer.write(loaded_img)
 
     vid_writer.release()
+    return video_filename
+
+#image name must include .jpg/.png/. jpeg
+def url_to_img(url,name,folder):
+    #store url into a png
+    if not os.path.isdir("images"):
+        os.mkdir("images")
+    urllib.request.urlretrieve(url, os.path.join(folder,name))
+
+#writes list of images to the images folder 
+def list_to_images(image_urls):
+    url_list = image_urls.split(',')
+    id = 1
+    for url in url_list:
+        name = "img"+str(id)+".jpeg"
+        url_to_img(url,name,"images/")
+        id+=1
+    
